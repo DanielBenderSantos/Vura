@@ -88,8 +88,6 @@
 
 <script>
 function gerarMapa() {
-  const url = "https://vura-kappa.vercel.app/api/mapa-natal"; // 👈 SUA API
-
   const data = document.getElementById("data").value;
   const hora = document.getElementById("hora").value;
   const cidade = document.getElementById("cidade").value;
@@ -102,7 +100,7 @@ function gerarMapa() {
   const [year, month, day] = data.split("-");
   const [hour, minute] = hora.split(":");
 
-  fetch(url, {
+  fetch("/api/mapa-natal", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -119,7 +117,7 @@ function gerarMapa() {
   .then(res => res.json())
   .then(json => {
     document.getElementById("resultado").textContent =
-      JSON.stringify(json, null, 2);
+      JSON.stringify(json.mapa_natal, null, 2);
   })
   .catch(err => {
     console.error(err);
@@ -127,7 +125,6 @@ function gerarMapa() {
   });
 }
 </script>
-
 
 </body>
 </html>
