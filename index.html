@@ -92,11 +92,6 @@ function gerarMapa() {
   const hora = document.getElementById("hora").value;
   const cidade = document.getElementById("cidade").value;
 
-  if (!data || !hora || !cidade) {
-    alert("Preencha todos os campos!");
-    return;
-  }
-
   const [year, month, day] = data.split("-");
   const [hour, minute] = hora.split(":");
 
@@ -114,14 +109,19 @@ function gerarMapa() {
       city: cidade
     })
   })
-  .then(res => res.json())
-  .then(json => {
+  .then(res => {
+    console.log("STATUS:", res.status);
+    return res.text(); // 👈 força pegar qualquer resposta
+  })
+  .then(texto => {
+    console.log("RESPOSTA CRUA:", texto);
     document.getElementById("resultado").textContent =
-      JSON.stringify(json.mapa_natal, null, 2);
+      texto || "Resposta vazia da API";
   })
   .catch(err => {
     console.error(err);
-    alert("Erro ao gerar mapa natal");
+    document.getElementById("resultado").textContent =
+      "Erro no fetch";
   });
 }
 </script>
