@@ -11,7 +11,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Monta payload pro endpoint que gera chart SVG
     const payload = {
       name: String(body.name),
       year: Number(body.year),
@@ -24,17 +23,15 @@ export default async function handler(req, res) {
       lng: Number(body.lng),
       tz_str: String(body.tz_str),
 
-      // Você pode trocar depois:
       zodiac_type: body.zodiac_type || "tropical",
       house_system: body.house_system || "placidus",
 
-      // Saída em SVG
+      // IMPORTANTÍSSIMO: SVG vem como TEXTO puro
       format: "svg",
       size: Number(body.size || 900),
       theme_type: body.theme_type || "light",
       show_metadata: true,
 
-      // extras comuns
       display_settings: {
         chiron: true,
         lilith: true,
@@ -44,14 +41,12 @@ export default async function handler(req, res) {
         mc: true
       },
 
-      // Ajustes visuais (tenta deixar “wheel clássico”)
       chart_config: {
         show_color_background: false,
         sign_ring_thickness_fraction: 0.17,
         house_ring_thickness_fraction: 0.07,
         planet_symbol_scale: 0.40,
-        sign_symbol_scale: 0.62,
-        line_width: 1.0
+        sign_symbol_scale: 0.62
       }
     };
 
@@ -64,10 +59,29 @@ export default async function handler(req, res) {
       body: JSON.stringify(payload),
     });
 
-    const data = await r.json().catch(() => ({}));
-    return res.status(r.status).json(data);
+    // Se deu erro, tenta ler JSON ou texto pra mostrar a causa
+    if (!r.ok) {
+      const txt = await r.text();
+      let parsed;
+      try { parsed = JSON.parse(txt); } catch { parsed = { raw: txt }; }
+
+      return res.status(r.status).json({
+        error: "FreeAstro retornou erro no /natal/experimental",
+        status: r.status,
+        response: parsed
+      });
+    }
+
+    // Aqui é o principal: SVG puro
+    const svgText = await r.text();
+
+    // Devolve como JSON pro seu app.js não mudar
+    return res.status(200).json({ svg: svgText });
   } catch (err) {
-    return res.status(500).json({ error: "Falha no /api/mandala", details: String(err) });
+    return res.status(500).json({
+      error: "Falha no /api/mandala",
+      details: String(err?.stack || err)
+    });
   }
 }
 
