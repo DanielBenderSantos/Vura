@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>✨ Mapa Natal ✨</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -61,30 +62,31 @@
       background: #020617;
       padding: 10px;
       border-radius: 6px;
-      max-height: 250px;
+      max-height: 260px;
       overflow: auto;
       font-size: 12px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
 
-  <div class="box">
-    <h2>✨ Mapa Natal ✨</h2>
+<div class="box">
+  <h2>✨ Mapa Natal ✨</h2>
 
-    <label>Data de nascimento</label>
-    <input type="date" id="data">
+  <label>Data de nascimento</label>
+  <input type="date" id="data">
 
-    <label>Hora</label>
-    <input type="time" id="hora">
+  <label>Hora</label>
+  <input type="time" id="hora">
 
-    <label>Cidade</label>
-    <input type="text" id="cidade" value="São Paulo">
+  <label>Cidade</label>
+  <input type="text" id="cidade" value="São Paulo">
 
-    <button onclick="gerarMapa()">Gerar mapa</button>
+  <button onclick="gerarMapa()">Gerar mapa</button>
 
-    <pre id="resultado">Resultado aparecerá aqui...</pre>
-  </div>
+  <pre id="resultado">Resultado aparecerá aqui...</pre>
+</div>
 
 <script>
 function gerarMapa() {
@@ -92,8 +94,17 @@ function gerarMapa() {
   const hora = document.getElementById("hora").value;
   const cidade = document.getElementById("cidade").value;
 
+  if (!data || !hora || !cidade) {
+    document.getElementById("resultado").textContent =
+      "Preencha todos os campos.";
+    return;
+  }
+
   const [year, month, day] = data.split("-");
   const [hour, minute] = hora.split(":");
+
+  document.getElementById("resultado").textContent =
+    "🔮 Gerando mapa natal...";
 
   fetch("/api/mapa-natal", {
     method: "POST",
@@ -109,19 +120,15 @@ function gerarMapa() {
       city: cidade
     })
   })
-  .then(res => {
-    console.log("STATUS:", res.status);
-    return res.text(); // 👈 força pegar qualquer resposta
-  })
-  .then(texto => {
-    console.log("RESPOSTA CRUA:", texto);
+  .then(res => res.json())
+  .then(json => {
     document.getElementById("resultado").textContent =
-      texto || "Resposta vazia da API";
+      JSON.stringify(json, null, 2);
   })
   .catch(err => {
     console.error(err);
     document.getElementById("resultado").textContent =
-      "Erro no fetch";
+      "❌ Erro ao gerar mapa natal";
   });
 }
 </script>
