@@ -1,0 +1,99 @@
+:root{
+  --bg:#0b1220;
+  --card:#111a2e;
+  --txt:#e8eefc;
+  --muted:#a9b6d3;
+  --accent1:#ff5e78;
+  --accent2:#ffa58d;
+  --line:rgba(255,255,255,.10);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background:
+    radial-gradient(1200px 600px at 20% 10%, rgba(255,94,120,.18), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(255,165,141,.12), transparent 55%),
+    var(--bg);
+  color:var(--txt);
+}
+
+.ma-wrap{max-width:980px;margin:0 auto;padding:28px 16px 40px}
+.ma-header{margin-bottom:14px}
+.ma-title{margin:0;font-size:32px;letter-spacing:.3px}
+.ma-sub{margin:6px 0 0;color:var(--muted)}
+
+.ma-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  backdrop-filter: blur(8px);
+}
+
+.ma-form{display:flex;flex-direction:column;gap:12px}
+.ma-row{display:flex;flex-direction:column;gap:6px}
+label{font-size:13px;color:var(--muted)}
+input,select{
+  padding:10px 12px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(17,26,46,.55); color:var(--txt); outline:none;
+}
+input:focus,select:focus{border-color:rgba(255,94,120,.55)}
+.ma-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:720px){.ma-grid{grid-template-columns:1fr}}
+
+.ma-btn{
+  margin-top:6px;
+  padding:11px 14px;
+  border:none;border-radius:14px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  color:#0b1220;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.ma-status{min-height:18px;margin:0;color:var(--muted);font-size:13px}
+
+.ma-result{margin-top:16px}
+.ma-output{
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(0,0,0,.18);
+  min-height:140px;
+  padding:10px;
+}
+
+/* Autocomplete */
+.ma-autocomplete{position:relative}
+.ma-suggestions{
+  position:absolute;
+  top:72px; left:0; right:0;
+  background:#0f1830;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  z-index:50;
+}
+.ma-suggestions button{
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  background:transparent;
+  border:0;
+  color:var(--txt);
+  cursor:pointer;
+}
+.ma-suggestions button:hover{
+  background:rgba(255,255,255,.06);
+}
+
+/* “Skin” opcional pra tentar puxar mais pro estilo clássico do exemplo */
+.ma-output svg{
+  width:100%;
+  height:auto;
+  display:block;
+  background:#fff; /* ajuda a ficar igual seu exemplo */
+  border-radius:12px;
+}

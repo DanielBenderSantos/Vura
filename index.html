@@ -1,35 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mapa Natal</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mandala Astral</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
+  <main class="ma-wrap">
+    <header class="ma-header">
+      <h1 class="ma-title">Mandala Astral</h1>
+      <p class="ma-sub">Preencha os dados e gere a mandala (SVG).</p>
+    </header>
 
-<h1>Mapa Natal Profissional</h1>
+    <section class="ma-card">
+      <form id="formMandala" class="ma-form" autocomplete="off">
+        <div class="ma-row">
+          <label>Nome</label>
+          <input id="name" required placeholder="Ex: Daniel" />
+        </div>
 
-<form id="mapaForm">
-  <input type="text" id="name" placeholder="Nome" required>
+        <div class="ma-grid">
+          <div class="ma-row">
+            <label>Data</label>
+            <input id="date" type="date" required />
+          </div>
+          <div class="ma-row">
+            <label>Hora</label>
+            <input id="time" type="time" required />
+          </div>
+        </div>
 
-  <input type="number" id="year" placeholder="Ano" required>
-  <input type="number" id="month" placeholder="Mês" required>
-  <input type="number" id="day" placeholder="Dia" required>
+        <div class="ma-row ma-autocomplete">
+          <label>Cidade</label>
+          <input id="city" required placeholder="Digite sua cidade..." />
+          <div id="cityList" class="ma-suggestions" hidden></div>
 
-  <input type="number" id="hour" placeholder="Hora" required>
-  <input type="number" id="minute" placeholder="Minuto" required>
+          <input id="lat" type="hidden" />
+          <input id="lng" type="hidden" />
+          <input id="tz" type="hidden" />
+        </div>
 
-  <input type="text" id="city" placeholder="Cidade" required>
+        <div class="ma-grid">
+          <div class="ma-row">
+            <label>Casas</label>
+            <select id="house_system">
+              <option value="placidus" selected>Placidus</option>
+              <option value="whole_sign">Whole Sign</option>
+              <option value="equal">Equal</option>
+              <option value="koch">Koch</option>
+              <option value="regiomontanus">Regiomontanus</option>
+              <option value="porphyry">Porphyry</option>
+              <option value="campanus">Campanus</option>
+            </select>
+          </div>
 
-  <input type="number" id="lat" placeholder="Latitude" step="0.0001" required>
-  <input type="number" id="lng" placeholder="Longitude" step="0.0001" required>
+          <div class="ma-row">
+            <label>Zodíaco</label>
+            <select id="zodiac_type">
+              <option value="tropical" selected>Tropical</option>
+              <option value="sidereal">Sideral</option>
+            </select>
+          </div>
+        </div>
 
-  <button type="submit">Gerar mapa</button>
-</form>
+        <div class="ma-grid">
+          <div class="ma-row">
+            <label>Tema</label>
+            <select id="theme_type">
+              <option value="light" selected>Claro (parecido com seu exemplo)</option>
+              <option value="dark">Escuro</option>
+            </select>
+          </div>
+          <div class="ma-row">
+            <label>Tamanho</label>
+            <select id="size">
+              <option value="760">760</option>
+              <option value="900" selected>900</option>
+              <option value="1100">1100</option>
+            </select>
+          </div>
+        </div>
 
-<div id="chart"></div>
+        <button class="ma-btn" type="submit">Gerar Mandala</button>
+        <p id="status" class="ma-status"></p>
+      </form>
+    </section>
 
-<script src="js/mapa-natal.js"></script>
-<script src="js/chart-svg.js"></script>
+    <section class="ma-result">
+      <div id="output" class="ma-output" aria-label="Resultado da mandala"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
 </body>
 </html>
