@@ -1,24 +1,47 @@
+import tzlookup from "tz-lookup";
+
 export default async function handler(req, res) {
   try {
-    const q = (req.query.q || "").trim();
-    const limit = Math.min(parseInt(req.query.limit || "8", 10), 20);
+    const q = String(req.query.q || "").trim();
+    const limit = Math.min(parseInt(String(req.query.limit || "8"), 10), 20);
 
-    if (!q || q.length < 2) {
+    if (q.length < 2) {
       return res.status(400).json({ error: "Digite ao menos 2 caracteres." });
     }
 
-    // FreeAstroAPI geo search v2 (precisa de x-api-key)
-    const url = new URL("https://astro-api-1qnc.onrender.com/api/v2/geo/search");
-    url.searchParams.set("q", q);
-    url.searchParams.set("limit", String(limit));
+    // Open-Meteo Geocoding (sem chave)
+    const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
+    url.searchParams.set("name", q);
+    url.searchParams.set("count", String(limit));
+    url.searchParams.set("language", "pt");
+    url.searchParams.set("format", "json");
 
-    const r = await fetch(url.toString(), {
-      headers: { "x-api-key": process.env.FREEASTRO_API_KEY },
+    const r = await fetch(url.toString());
+    const data = await r.json();
+
+    const results = (data.results || []).map((item) => {
+      const lat = Number(item.latitude);
+      const lng = Number(item.longitude);
+
+      let timezone = "AUTO";
+      try {
+        timezone = tzlookup(lat, lng); // ex: America/Sao_Paulo
+      } catch {}
+
+      return {
+        name: item.name,
+        country: item.country || "",
+        lat,
+        lng,
+        timezone
+      };
     });
 
-    const data = await r.json().catch(() => ({}));
-    return res.status(r.status).json(data);
+    return res.status(200).json({ results });
   } catch (err) {
-    return res.status(500).json({ error: "Falha no /api/geo", details: String(err) });
+    return res.status(500).json({
+      error: "Falha no /api/geo",
+      details: String(err?.stack || err)
+    });
   }
 }
