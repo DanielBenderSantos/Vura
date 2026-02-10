@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>✨ Mapa Natal ✨</title>
+  <title>✨ Mapa Natal Completo ✨</title>
 
   <style>
     body {
@@ -17,38 +17,41 @@
 
     .box {
       background: #020617;
-      padding: 20px;
-      border-radius: 10px;
-      width: 380px;
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+      padding: 22px;
+      border-radius: 12px;
+      width: 420px;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.45);
     }
 
     h2 {
       text-align: center;
       color: #a855f7;
+      margin-bottom: 10px;
     }
 
     label {
       margin-top: 10px;
       display: block;
+      font-size: 14px;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 8px;
       margin-top: 4px;
       border-radius: 6px;
       border: none;
+      font-size: 14px;
     }
 
     button {
       width: 100%;
-      margin-top: 15px;
-      padding: 10px;
+      margin-top: 16px;
+      padding: 11px;
       background: #a855f7;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
     }
@@ -60,8 +63,8 @@
     pre {
       margin-top: 15px;
       background: #020617;
-      padding: 10px;
-      border-radius: 6px;
+      padding: 12px;
+      border-radius: 8px;
       max-height: 260px;
       overflow: auto;
       font-size: 12px;
@@ -74,29 +77,60 @@
 <div class="box">
   <h2>✨ Mapa Natal ✨</h2>
 
+  <label>Nome</label>
+  <input type="text" id="nome" placeholder="Seu nome">
+
   <label>Data de nascimento</label>
   <input type="date" id="data">
 
-  <label>Hora</label>
+  <label>Hora de nascimento</label>
   <input type="time" id="hora">
 
   <label>Cidade</label>
   <input type="text" id="cidade" value="São Paulo">
 
-  <button onclick="gerarMapa()">Gerar mapa</button>
+  <label>Latitude (opcional)</label>
+  <input type="number" id="lat" step="0.0001" placeholder="-23.5505">
 
-  <pre id="resultado">Resultado aparecerá aqui...</pre>
+  <label>Longitude (opcional)</label>
+  <input type="number" id="lng" step="0.0001" placeholder="-46.6333">
+
+  <label>Sistema de Casas</label>
+  <select id="house_system">
+    <option value="placidus">Placidus</option>
+    <option value="koch">Koch</option>
+    <option value="equal">Casas Iguais</option>
+    <option value="whole_sign">Signos Inteiros</option>
+  </select>
+
+  <label>Incluir pontos extras</label>
+  <select id="features" multiple>
+    <option value="lilith">Lilith</option>
+    <option value="chiron">Chiron</option>
+  </select>
+
+  <button onclick="gerarMapa()">Gerar mapa natal</button>
+
+  <pre id="resultado">🔮 O resultado aparecerá aqui...</pre>
 </div>
 
 <script>
 function gerarMapa() {
+  const nome = document.getElementById("nome").value || "Usuário";
   const data = document.getElementById("data").value;
   const hora = document.getElementById("hora").value;
   const cidade = document.getElementById("cidade").value;
+  const lat = document.getElementById("lat").value;
+  const lng = document.getElementById("lng").value;
+  const houseSystem = document.getElementById("house_system").value;
+
+  const features = Array.from(
+    document.getElementById("features").selectedOptions
+  ).map(opt => opt.value);
 
   if (!data || !hora || !cidade) {
     document.getElementById("resultado").textContent =
-      "Preencha todos os campos.";
+      "❗ Preencha data, hora e cidade.";
     return;
   }
 
@@ -104,7 +138,7 @@ function gerarMapa() {
   const [hour, minute] = hora.split(":");
 
   document.getElementById("resultado").textContent =
-    "🔮 Gerando mapa natal...";
+    "✨ Calculando mapa natal...";
 
   fetch("/api/mapa-natal", {
     method: "POST",
@@ -112,12 +146,18 @@ function gerarMapa() {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
+      name: nome,
       year: Number(year),
       month: Number(month),
       day: Number(day),
       hour: Number(hour),
       minute: Number(minute),
-      city: cidade
+      city: cidade,
+      lat: lat ? Number(lat) : undefined,
+      lng: lng ? Number(lng) : undefined,
+      tz_str: "AUTO",
+      house_system: houseSystem,
+      include_features: features
     })
   })
   .then(res => res.json())
