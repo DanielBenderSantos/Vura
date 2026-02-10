@@ -14,8 +14,8 @@ export default async function handler(req, res) {
   try {
     const { year, month, day, hour, minute, city } = req.body;
 
-   const astroResponse = await fetch(
-  "https://astro-api-1qnc.onrender.com/api/v1/western/natal-chart",
+ const astroResponse = await fetch(
+  "https://astro-api-1qnc.onrender.com/api/v1/western/natal",
   {
     method: "POST",
     headers: {
