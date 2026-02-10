@@ -1,64 +1,34 @@
-export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+const form = document.getElementById("mapaForm");
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ erro: "Método não permitido" });
-  }
+  const body = {
+    name: document.getElementById("name").value,
+    year: Number(document.getElementById("year").value),
+    month: Number(document.getElementById("month").value),
+    day: Number(document.getElementById("day").value),
+    hour: Number(document.getElementById("hour").value),
+    minute: Number(document.getElementById("minute").value),
+    city: document.getElementById("city").value,
+    lat: Number(document.getElementById("lat").value),
+    lng: Number(document.getElementById("lng").value),
+    tz_str: "AUTO",
+    house_system: "placidus",
+    include_features: ["lilith", "chiron"]
+  };
 
-  try {
-    const {
-      name,
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      city,
-      lat,
-      lng,
-      house_system,
-      include_features
-    } = req.body;
+  const res = await fetch("https://astro-api-1qnc.onrender.com/api/v1/natal/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": "SUA_API_KEY"
+    },
+    body: JSON.stringify(body)
+  });
 
-    const astroResponse = await fetch(
-      "https://astro-api-1qnc.onrender.com/api/v1/natal/calculate",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.ASTRO_API_KEY
-        },
-        body: JSON.stringify({
-          name,
-          year,
-          month,
-          day,
-          hour,
-          minute,
-          city,
-          lat,
-          lng,
-          tz_str: "AUTO",
-          house_system,
-          include_speed: false,
-          include_features
-        })
-      }
-    );
+  const data = await res.json();
 
-    const astroData = await astroResponse.json();
-    return res.status(200).json(astroData);
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      erro: "Erro ao gerar mapa natal"
-    });
-  }
-}
+  // 🔥 AQUI é o pulo do gato
+  drawChart(data);
+});
