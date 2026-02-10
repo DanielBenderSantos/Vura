@@ -88,8 +88,7 @@
 
 <script>
 function gerarMapa() {
-  const apiKey = "cbcbd10e0e8949d64de19b8ddb8fcabe4d90a16590511100fbc7c8ce5d156ab4"; // 👈 coloque sua chave aqui
-  const url = "https://astro-api-1qnc.onrender.com/api/v1/western/natal";
+  const url = "https://vura-kappa.vercel.app/api/mapa-natal"; // 👈 SUA API
 
   const data = document.getElementById("data").value;
   const hora = document.getElementById("hora").value;
@@ -106,8 +105,7 @@ function gerarMapa() {
   fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       year: Number(year),
@@ -129,6 +127,7 @@ function gerarMapa() {
   });
 }
 </script>
+
 
 </body>
 </html>
