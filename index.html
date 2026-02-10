@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>✨ Mapa Natal ✨</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .box {
+      background: #020617;
+      padding: 20px;
+      border-radius: 10px;
+      width: 380px;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+
+    h2 {
+      text-align: center;
+      color: #a855f7;
+    }
+
+    label {
+      margin-top: 10px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      background: #a855f7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #9333ea;
+    }
+
+    pre {
+      margin-top: 15px;
+      background: #020617;
+      padding: 10px;
+      border-radius: 6px;
+      max-height: 250px;
+      overflow: auto;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>✨ Mapa Natal ✨</h2>
+
+    <label>Data de nascimento</label>
+    <input type="date" id="data">
+
+    <label>Hora</label>
+    <input type="time" id="hora">
+
+    <label>Cidade</label>
+    <input type="text" id="cidade" value="São Paulo">
+
+    <button onclick="gerarMapa()">Gerar mapa</button>
+
+    <pre id="resultado">Resultado aparecerá aqui...</pre>
+  </div>
+
+<script>
+function gerarMapa() {
+  const apiKey = "cbcbd10e0e8949d64de19b8ddb8fcabe4d90a16590511100fbc7c8ce5d156ab4"; // 👈 coloque sua chave aqui
+  const url = "https://astro-api-1qnc.onrender.com/api/v1/western/natal";
+
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("hora").value;
+  const cidade = document.getElementById("cidade").value;
+
+  if (!data || !hora || !cidade) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  const [year, month, day] = data.split("-");
+  const [hour, minute] = hora.split(":");
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey
+    },
+    body: JSON.stringify({
+      year: Number(year),
+      month: Number(month),
+      day: Number(day),
+      hour: Number(hour),
+      minute: Number(minute),
+      city: cidade
+    })
+  })
+  .then(res => res.json())
+  .then(json => {
+    document.getElementById("resultado").textContent =
+      JSON.stringify(json, null, 2);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Erro ao gerar mapa natal");
+  });
+}
+</script>
+
+</body>
+</html>
