@@ -14,24 +14,25 @@ export default async function handler(req, res) {
   try {
     const { year, month, day, hour, minute, city } = req.body;
 
-    const astroResponse = await fetch(
-      "https://astro-api-1qnc.onrender.com/api/v1/western/natal",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.ASTRO_API_KEY
-        },
-        body: JSON.stringify({
-          year,
-          month,
-          day,
-          hour,
-          minute,
-          city
-        })
-      }
-    );
+   const astroResponse = await fetch(
+  "https://astro-api-1qnc.onrender.com/api/v1/western/natal-chart",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.ASTRO_API_KEY
+    },
+    body: JSON.stringify({
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      city
+    })
+  }
+);
+
 
     const astroData = await astroResponse.json();
 
