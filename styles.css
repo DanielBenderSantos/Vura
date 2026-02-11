@@ -1,63 +1,162 @@
+/* =========================================================
+   Mandala Astral - CSS principal
+   Organização:
+   1) Variáveis (cores/tema)
+   2) Base (body, tipografia)
+   3) Layout (container, header, cards)
+   4) Formulário (inputs, grids, botão)
+   5) Resultado (área do SVG)
+   6) Autocomplete (dropdown)
+   7) Ajustes visuais do SVG (skin)
+   ========================================================= */
+
+/* 1) Variáveis do tema */
 :root{
-  --bg:#0b1220;
-  --card:#111a2e;
-  --txt:#e8eefc;
-  --muted:#a9b6d3;
-  --accent1:#ff5e78;
-  --accent2:#ffa58d;
-  --line:rgba(255,255,255,.10);
+  --cor-fundo:#0b1220;
+  --cor-card:#111a2e;
+  --cor-texto:#e8eefc;
+  --cor-texto-suave:#a9b6d3;
+
+  --cor-destaque-1:#ff5e78;
+  --cor-destaque-2:#ffa58d;
+
+  --cor-borda:rgba(255,255,255,.10);
 }
 
-*{box-sizing:border-box}
+/* 2) Base */
+*{ box-sizing:border-box; }
+
 body{
   margin:0;
   font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color:var(--cor-texto);
+
+  /* Fundo com brilho leve (mantém o clima do projeto) */
   background:
     radial-gradient(1200px 600px at 20% 10%, rgba(255,94,120,.18), transparent 60%),
     radial-gradient(900px 500px at 90% 0%, rgba(255,165,141,.12), transparent 55%),
-    var(--bg);
-  color:var(--txt);
+    var(--cor-fundo);
 }
 
-.ma-wrap{max-width:980px;margin:0 auto;padding:28px 16px 40px}
-.ma-header{margin-bottom:14px}
-.ma-title{margin:0;font-size:32px;letter-spacing:.3px}
-.ma-sub{margin:6px 0 0;color:var(--muted)}
+/* 3) Layout geral */
+.ma-wrap{
+  max-width:980px;
+  margin:0 auto;
+  padding:28px 16px 40px;
+}
 
+.ma-header{ margin-bottom:14px; }
+
+.ma-title{
+  margin:0;
+  font-size:32px;
+  letter-spacing:.3px;
+}
+
+.ma-sub{
+  margin:6px 0 0;
+  color:var(--cor-texto-suave);
+}
+
+/* Card do formulário */
 .ma-card{
   background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  border:1px solid var(--line);
+  border:1px solid var(--cor-borda);
   border-radius:16px;
   padding:18px;
   backdrop-filter: blur(8px);
 }
 
-.ma-form{display:flex;flex-direction:column;gap:12px}
-.ma-row{display:flex;flex-direction:column;gap:6px}
-label{font-size:13px;color:var(--muted)}
-input,select{
-  padding:10px 12px;border-radius:12px;border:1px solid var(--line);
-  background:rgba(17,26,46,.55); color:var(--txt); outline:none;
+/* 4) Formulário */
+.ma-form{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
-input:focus,select:focus{border-color:rgba(255,94,120,.55)}
-.ma-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:720px){.ma-grid{grid-template-columns:1fr}}
 
+.ma-row{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+label{
+  font-size:13px;
+  color:var(--cor-texto-suave);
+}
+
+/* Inputs e selects */
+input,
+select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--cor-borda);
+  background:rgba(17,26,46,.55);
+  color:var(--cor-texto);
+  outline:none;
+}
+
+/* Foco (teclado / acessibilidade) */
+input:focus,
+select:focus{
+  border-color:rgba(255,94,120,.55);
+}
+
+/* Grid: 2 colunas no desktop, 1 no mobile */
+.ma-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+@media (max-width:720px){
+  .ma-grid{ grid-template-columns:1fr; }
+}
+
+/* Botão principal */
 .ma-btn{
   margin-top:6px;
   padding:11px 14px;
-  border:none;border-radius:14px;
-  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+
+  border:none;
+  border-radius:14px;
+
+  background: linear-gradient(135deg, var(--cor-destaque-1), var(--cor-destaque-2));
   color:#0b1220;
+
   font-weight:800;
   cursor:pointer;
+
+  /* transições leves (sensação mais “polida”) */
+  transition: transform .06s ease, filter .15s ease, opacity .15s ease;
 }
 
-.ma-status{min-height:18px;margin:0;color:var(--muted);font-size:13px}
+.ma-btn:hover{
+  filter: brightness(1.05);
+}
 
-.ma-result{margin-top:16px}
+.ma-btn:active{
+  transform: translateY(1px);
+}
+
+.ma-btn:focus{
+  outline: 2px solid rgba(255,94,120,.55);
+  outline-offset: 2px;
+}
+
+/* Texto de status (feedback do JS) */
+.ma-status{
+  min-height:18px;
+  margin:0;
+  color:var(--cor-texto-suave);
+  font-size:13px;
+}
+
+/* 5) Resultado (mandala) */
+.ma-result{ margin-top:16px; }
+
 .ma-output{
-  border:1px solid var(--line);
+  border:1px solid var(--cor-borda);
   border-radius:16px;
   overflow:hidden;
   background:rgba(0,0,0,.18);
@@ -65,35 +164,45 @@ input:focus,select:focus{border-color:rgba(255,94,120,.55)}
   padding:10px;
 }
 
-/* Autocomplete */
-.ma-autocomplete{position:relative}
+/* 6) Autocomplete (dropdown de sugestões) */
+.ma-autocomplete{ position:relative; }
+
 .ma-suggestions{
   position:absolute;
-  top:72px; left:0; right:0;
+  top:72px;
+  left:0;
+  right:0;
+
   background:#0f1830;
-  border:1px solid var(--line);
+  border:1px solid var(--cor-borda);
   border-radius:14px;
+
   overflow:hidden;
   z-index:50;
 }
+
 .ma-suggestions button{
   width:100%;
   text-align:left;
   padding:10px 12px;
+
   background:transparent;
   border:0;
-  color:var(--txt);
+  color:var(--cor-texto);
   cursor:pointer;
 }
+
 .ma-suggestions button:hover{
   background:rgba(255,255,255,.06);
 }
 
-/* “Skin” opcional pra tentar puxar mais pro estilo clássico do exemplo */
+/* 7) “Skin” do SVG (para parecer mais com o estilo clássico) */
 .ma-output svg{
   width:100%;
   height:auto;
   display:block;
-  background:#fff; /* ajuda a ficar igual seu exemplo */
+
+  /* O SVG vem “solto”, esse fundo branco aproxima do exemplo clássico */
+  background:#fff;
   border-radius:12px;
 }

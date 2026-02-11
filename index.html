@@ -6,45 +6,69 @@
   <title>Mandala Astral</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
+
 <body>
   <main class="ma-wrap">
+    <!-- Cabeçalho -->
     <header class="ma-header">
       <h1 class="ma-title">Mandala Astral</h1>
-      <p class="ma-sub">Preencha os dados e gere a mandala (SVG).</p>
+      <p class="ma-sub">Preencha os dados abaixo e gere sua mandala em SVG.</p>
     </header>
 
-    <section class="ma-card">
+    <!-- Formulário -->
+    <section class="ma-card" aria-label="Formulário de geração da mandala">
       <form id="formMandala" class="ma-form" autocomplete="off">
+        <!-- Nome -->
         <div class="ma-row">
-          <label>Nome</label>
-          <input id="name" required placeholder="Ex: Daniel" />
+          <label for="name">Nome</label>
+          <input
+            id="name"
+            name="name"
+            required
+            placeholder="Ex: Daniel"
+          />
         </div>
 
+        <!-- Data e Hora -->
         <div class="ma-grid">
           <div class="ma-row">
-            <label>Data</label>
-            <input id="date" type="date" required />
+            <label for="date">Data de nascimento</label>
+            <input id="date" name="date" type="date" required />
           </div>
+
           <div class="ma-row">
-            <label>Hora</label>
-            <input id="time" type="time" required />
+            <label for="time">Hora de nascimento</label>
+            <input id="time" name="time" type="time" required />
           </div>
         </div>
 
+        <!-- Cidade com autocomplete -->
         <div class="ma-row ma-autocomplete">
-          <label>Cidade</label>
-          <input id="city" required placeholder="Digite sua cidade..." />
+          <label for="city">Cidade de nascimento</label>
+          <input
+            id="city"
+            name="city"
+            required
+            placeholder="Digite sua cidade..."
+            aria-autocomplete="list"
+            aria-controls="cityList"
+            aria-expanded="false"
+          />
+
+          <!-- Lista de sugestões (preenchida via JS) -->
           <div id="cityList" class="ma-suggestions" hidden></div>
 
-          <input id="lat" type="hidden" />
-          <input id="lng" type="hidden" />
-          <input id="tz" type="hidden" />
+          <!-- Campos ocultos preenchidos ao selecionar a cidade -->
+          <input id="lat" type="hidden" name="lat" />
+          <input id="lng" type="hidden" name="lng" />
+          <input id="tz" type="hidden" name="tz" />
         </div>
 
+        <!-- Configurações do mapa -->
         <div class="ma-grid">
           <div class="ma-row">
-            <label>Casas</label>
-            <select id="house_system">
+            <label for="house_system">Sistema de casas</label>
+            <select id="house_system" name="house_system">
               <option value="placidus" selected>Placidus</option>
               <option value="whole_sign">Whole Sign</option>
               <option value="equal">Equal</option>
@@ -56,25 +80,27 @@
           </div>
 
           <div class="ma-row">
-            <label>Zodíaco</label>
-            <select id="zodiac_type">
+            <label for="zodiac_type">Zodíaco</label>
+            <select id="zodiac_type" name="zodiac_type">
               <option value="tropical" selected>Tropical</option>
               <option value="sidereal">Sideral</option>
             </select>
           </div>
         </div>
 
+        <!-- Aparência -->
         <div class="ma-grid">
           <div class="ma-row">
-            <label>Tema</label>
-            <select id="theme_type">
-              <option value="light" selected>Claro (parecido com seu exemplo)</option>
+            <label for="theme_type">Tema</label>
+            <select id="theme_type" name="theme_type">
+              <option value="light" selected>Claro (parecido com o exemplo)</option>
               <option value="dark">Escuro</option>
             </select>
           </div>
+
           <div class="ma-row">
-            <label>Tamanho</label>
-            <select id="size">
+            <label for="size">Tamanho</label>
+            <select id="size" name="size">
               <option value="760">760</option>
               <option value="900" selected>900</option>
               <option value="1100">1100</option>
@@ -82,13 +108,17 @@
           </div>
         </div>
 
+        <!-- Ação -->
         <button class="ma-btn" type="submit">Gerar Mandala</button>
-        <p id="status" class="ma-status"></p>
+
+        <!-- Status/feedback (preenchido via JS) -->
+        <p id="status" class="ma-status" role="status" aria-live="polite"></p>
       </form>
     </section>
 
-    <section class="ma-result">
-      <div id="output" class="ma-output" aria-label="Resultado da mandala"></div>
+    <!-- Resultado -->
+    <section class="ma-result" aria-label="Resultado da mandala">
+      <div id="output" class="ma-output" aria-label="Mandala gerada"></div>
     </section>
   </main>
 

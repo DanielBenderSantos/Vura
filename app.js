@@ -1,159 +1,216 @@
-const $ = (id) => document.getElementById(id);
+// app.js
+// Responsável por:
+// 1) Autocomplete de cidades (chama /api/geo)
+// 2) Guardar lat/lng/timezone da cidade escolhida
+// 3) Enviar dados para /api/mandala e renderizar o SVG retornado
 
-const form = $("formMandala");
-const statusEl = $("status");
-const output = $("output");
+// Atalho para pegar elementos pelo ID
+const pegarEl = (id) => document.getElementById(id);
 
-const cityInput = $("city");
-const cityList = $("cityList");
+// Elementos principais da página
+const formulario = pegarEl("formMandala");
+const elStatus = pegarEl("status");
+const elResultado = pegarEl("output");
 
-let cityPick = null; // objeto escolhido no autocomplete
+// Elementos do campo de cidade + lista de sugestões
+const inputCidade = pegarEl("city");
+const listaCidades = pegarEl("cityList");
 
-function setStatus(msg) {
-  statusEl.textContent = msg || "";
+// Aqui guardamos a cidade escolhida (objeto completo: name/country/lat/lng/timezone)
+let cidadeSelecionada = null;
+
+/** Atualiza o texto de status/feedback para o usuário */
+function definirStatus(mensagem) {
+  elStatus.textContent = mensagem || "";
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+/**
+ * Evita injeção de HTML ao montar a lista de sugestões (segurança básica).
+ * Ex: se algum texto vier com "<script>", isso vira texto e não executa.
+ */
+function escaparHtml(texto) {
+  return String(texto).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
   }[c]));
 }
 
-function showSuggestions(items) {
-  if (!items || items.length === 0) {
-    cityList.hidden = true;
-    cityList.innerHTML = "";
+/**
+ * Renderiza a lista de sugestões de cidades abaixo do input.
+ * Cada item vira um botão clicável.
+ */
+function mostrarSugestoes(cidades) {
+  if (!cidades || cidades.length === 0) {
+    listaCidades.hidden = true;
+    listaCidades.innerHTML = "";
     return;
   }
 
-  cityList.hidden = false;
-  cityList.innerHTML = items.map((c, idx) => {
-    const name = escapeHtml(c.name);
-    const country = escapeHtml(c.country);
-    const timezone = escapeHtml(c.timezone);
+  listaCidades.hidden = false;
+
+  listaCidades.innerHTML = cidades.map((cidade, idx) => {
+    const nome = escaparHtml(cidade.name);
+    const pais = escaparHtml(cidade.country);
+    const fuso = escaparHtml(cidade.timezone);
+
     return `<button type="button" data-idx="${idx}">
-      ${name} (${country}) — ${timezone}
+      ${nome} (${pais}) — ${fuso}
     </button>`;
   }).join("");
 
-  cityList.querySelectorAll("button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const idx = Number(btn.dataset.idx);
-      cityPick = items[idx];
+  // Ao clicar em uma cidade, salvamos e preenchermos os hidden inputs
+  listaCidades.querySelectorAll("button").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const idx = Number(botao.dataset.idx);
+      cidadeSelecionada = cidades[idx];
 
-      cityInput.value = `${cityPick.name} (${cityPick.country})`;
-      $("lat").value = cityPick.lat;
-      $("lng").value = cityPick.lng;
-      $("tz").value = cityPick.timezone;
+      // Preenche o input visível com "Cidade (País)"
+      inputCidade.value = `${cidadeSelecionada.name} (${cidadeSelecionada.country})`;
 
-      showSuggestions([]);
-      setStatus("");
+      // Preenche os hidden inputs (usados ao enviar o payload)
+      pegarEl("lat").value = cidadeSelecionada.lat;
+      pegarEl("lng").value = cidadeSelecionada.lng;
+      pegarEl("tz").value = cidadeSelecionada.timezone;
+
+      // Fecha a lista
+      mostrarSugestoes([]);
+      definirStatus("");
     });
   });
 }
 
-// Debounce
-let debounceT = null;
-cityInput.addEventListener("input", () => {
-  cityPick = null;
-  $("lat").value = "";
-  $("lng").value = "";
-  $("tz").value = "";
+/* ===========================
+   AUTOCOMPLETE COM DEBOUNCE
+   =========================== */
 
-  clearTimeout(debounceT);
+// debounce: evita chamar API a cada tecla imediatamente (melhora performance)
+let timerDebounce = null;
 
-  const q = cityInput.value.trim();
-  if (q.length < 2) {
-    showSuggestions([]);
+inputCidade.addEventListener("input", () => {
+  // Sempre que o usuário digita de novo, invalidamos a seleção anterior
+  cidadeSelecionada = null;
+  pegarEl("lat").value = "";
+  pegarEl("lng").value = "";
+  pegarEl("tz").value = "";
+
+  clearTimeout(timerDebounce);
+
+  const termo = inputCidade.value.trim();
+
+  // Se tiver menos de 2 letras, nem buscamos
+  if (termo.length < 2) {
+    mostrarSugestoes([]);
     return;
   }
 
-  debounceT = setTimeout(async () => {
+  timerDebounce = setTimeout(async () => {
     try {
-      const r = await fetch(`/api/geo?q=${encodeURIComponent(q)}&limit=8`);
-      const data = await r.json();
+      const resp = await fetch(`/api/geo?q=${encodeURIComponent(termo)}&limit=8`);
+      const dados = await resp.json();
 
-      if (!r.ok) {
-        throw new Error(data?.error || "Erro ao buscar cidades.");
+      if (!resp.ok) {
+        throw new Error(dados?.error || "Erro ao buscar cidades.");
       }
 
-      // A API costuma devolver { results: [...] }
-      const results = data.results || [];
-      showSuggestions(results);
-    } catch (e) {
-      showSuggestions([]);
-      setStatus(e.message || String(e));
+      // O backend devolve { results: [...] }
+      const cidades = dados.results || [];
+      mostrarSugestoes(cidades);
+
+    } catch (erro) {
+      mostrarSugestoes([]);
+      definirStatus(erro.message || String(erro));
     }
   }, 250);
 });
 
-// Fecha sugestões ao clicar fora
+// Fecha as sugestões ao clicar fora do componente de autocomplete
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".ma-autocomplete")) showSuggestions([]);
+  if (!e.target.closest(".ma-autocomplete")) {
+    mostrarSugestoes([]);
+  }
 });
 
-form.addEventListener("submit", async (e) => {
+/* ===========================
+   ENVIO DO FORMULÁRIO / MANDALA
+   =========================== */
+
+formulario.addEventListener("submit", async (e) => {
   e.preventDefault();
-  setStatus("");
+  definirStatus("");
 
-  if (!cityPick) {
-    setStatus("Selecione uma cidade na lista (isso garante lat/lng e timezone).");
+  // 1) Obrigatório ter escolhido uma cidade da lista (pra garantir lat/lng/tz)
+  if (!cidadeSelecionada) {
+    definirStatus("Selecione uma cidade na lista (isso garante lat/lng e timezone).");
     return;
   }
 
-  const date = $("date").value;
-  const time = $("time").value;
-  if (!date || !time) {
-    setStatus("Preencha data e hora.");
+  // 2) Data e hora
+  const valorData = pegarEl("date").value;
+  const valorHora = pegarEl("time").value;
+
+  if (!valorData || !valorHora) {
+    definirStatus("Preencha data e hora.");
     return;
   }
 
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
+  const [ano, mes, dia] = valorData.split("-").map(Number);
+  const [hora, minuto] = valorHora.split(":").map(Number);
 
+  // 3) Monta o payload para o backend /api/mandala
   const payload = {
-    name: $("name").value.trim(),
-    year, month, day,
-    hour, minute,
-    city: cityPick.name,
-    lat: cityPick.lat,
-    lng: cityPick.lng,
-    tz_str: cityPick.timezone,
-    house_system: $("house_system").value,
-    zodiac_type: $("zodiac_type").value,
-    theme_type: $("theme_type").value,
-    size: Number($("size").value || 900)
+    name: pegarEl("name").value.trim(),
+    year: ano,
+    month: mes,
+    day: dia,
+    hour: hora,
+    minute: minuto,
+
+    city: cidadeSelecionada.name,
+    lat: cidadeSelecionada.lat,
+    lng: cidadeSelecionada.lng,
+    tz_str: cidadeSelecionada.timezone,
+
+    house_system: pegarEl("house_system").value,
+    zodiac_type: pegarEl("zodiac_type").value,
+    theme_type: pegarEl("theme_type").value,
+    size: Number(pegarEl("size").value || 900),
   };
 
   try {
-    setStatus("Gerando mandala...");
-    output.innerHTML = "";
+    definirStatus("Gerando mandala...");
+    elResultado.innerHTML = "";
 
-    const r = await fetch("/api/mandala", {
+    const resp = await fetch("/api/mandala", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const data = await r.json();
-    if (!r.ok) throw new Error(data?.error || "Falha ao gerar mandala.");
+    const dados = await resp.json();
+    if (!resp.ok) throw new Error(dados?.error || "Falha ao gerar mandala.");
 
-    // A resposta pode variar: tente vários campos comuns
+    // Nosso backend padroniza como { svg: "<svg...>" }
+    // Mesmo assim deixei fallback caso você mude algo no futuro.
     const svg =
-      data.svg ||
-      data.chart_svg ||
-      data.output_svg ||
-      data?.result?.svg ||
-      data?.data?.svg;
+      dados.svg ||
+      dados.chart_svg ||
+      dados.output_svg ||
+      dados?.result?.svg ||
+      dados?.data?.svg;
 
     if (!svg) {
-      console.log("Resposta da API (sem svg encontrado):", data);
+      console.log("Resposta da API (sem svg encontrado):", dados);
       throw new Error("Não achei o SVG na resposta. Veja o console (F12) para ajustar o campo.");
     }
 
-    output.innerHTML = svg;
-    setStatus("Pronto ✅");
-  } catch (err) {
-    setStatus(err.message || String(err));
+    // 4) Renderiza o SVG direto no HTML
+    elResultado.innerHTML = svg;
+    definirStatus("Pronto ✅");
+
+  } catch (erro) {
+    definirStatus(erro.message || String(erro));
   }
 });
