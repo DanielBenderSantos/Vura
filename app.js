@@ -128,9 +128,7 @@ inputCidade.addEventListener("input", () => {
 
 // Fecha as sugestões ao clicar fora do componente de autocomplete
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".ma-autocomplete")) {
-    mostrarSugestoes([]);
-  }
+  if (!e.target.closest(".mandala-autocomplete")) mostrarSugestoes([]);
 });
 
 /* ===========================

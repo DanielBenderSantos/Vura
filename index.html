@@ -8,46 +8,37 @@
 </head>
 
 <body>
-  <main class="ma-wrap">
-    <!-- Cabeçalho -->
-    <header class="ma-header">
-      <h1 class="ma-title">Mandala Astral</h1>
-      <p class="ma-sub">Preencha os dados abaixo e gere sua mandala em SVG.</p>
+  <main class="mandala-pagina">
+    <header class="mandala-cabecalho">
+      <h1 class="mandala-titulo">Mandala Astral</h1>
+      <p class="mandala-subtitulo">Preencha os dados abaixo e gere sua mandala em SVG.</p>
     </header>
 
-    <!-- Formulário -->
-    <section class="ma-card" aria-label="Formulário de geração da mandala">
-      <form id="formMandala" class="ma-form" autocomplete="off">
-        <!-- Nome -->
-        <div class="ma-row">
-          <label for="name">Nome</label>
-          <input
-            id="name"
-            name="name"
-            required
-            placeholder="Ex: Daniel"
-          />
+    <section class="mandala-cartao" aria-label="Formulário de geração da mandala">
+      <form id="formMandala" class="mandala-formulario" autocomplete="off">
+        <div class="mandala-campo">
+          <label for="name" class="mandala-label">Nome</label>
+          <input id="name" name="name" class="mandala-input" required placeholder="Ex: Daniel" />
         </div>
 
-        <!-- Data e Hora -->
-        <div class="ma-grid">
-          <div class="ma-row">
-            <label for="date">Data de nascimento</label>
-            <input id="date" name="date" type="date" required />
+        <div class="mandala-linha-2">
+          <div class="mandala-campo">
+            <label for="date" class="mandala-label">Data de nascimento</label>
+            <input id="date" name="date" class="mandala-input" type="date" required />
           </div>
 
-          <div class="ma-row">
-            <label for="time">Hora de nascimento</label>
-            <input id="time" name="time" type="time" required />
+          <div class="mandala-campo">
+            <label for="time" class="mandala-label">Hora de nascimento</label>
+            <input id="time" name="time" class="mandala-input" type="time" required />
           </div>
         </div>
 
-        <!-- Cidade com autocomplete -->
-        <div class="ma-row ma-autocomplete">
-          <label for="city">Cidade de nascimento</label>
+        <div class="mandala-campo mandala-autocomplete">
+          <label for="city" class="mandala-label">Cidade de nascimento</label>
           <input
             id="city"
             name="city"
+            class="mandala-input"
             required
             placeholder="Digite sua cidade..."
             aria-autocomplete="list"
@@ -55,20 +46,17 @@
             aria-expanded="false"
           />
 
-          <!-- Lista de sugestões (preenchida via JS) -->
-          <div id="cityList" class="ma-suggestions" hidden></div>
+          <div id="cityList" class="mandala-lista-sugestoes" hidden></div>
 
-          <!-- Campos ocultos preenchidos ao selecionar a cidade -->
           <input id="lat" type="hidden" name="lat" />
           <input id="lng" type="hidden" name="lng" />
           <input id="tz" type="hidden" name="tz" />
         </div>
 
-        <!-- Configurações do mapa -->
-        <div class="ma-grid">
-          <div class="ma-row">
-            <label for="house_system">Sistema de casas</label>
-            <select id="house_system" name="house_system">
+        <div class="mandala-linha-2">
+          <div class="mandala-campo">
+            <label for="house_system" class="mandala-label">Sistema de casas</label>
+            <select id="house_system" name="house_system" class="mandala-select">
               <option value="placidus" selected>Placidus</option>
               <option value="whole_sign">Whole Sign</option>
               <option value="equal">Equal</option>
@@ -79,28 +67,27 @@
             </select>
           </div>
 
-          <div class="ma-row">
-            <label for="zodiac_type">Zodíaco</label>
-            <select id="zodiac_type" name="zodiac_type">
+          <div class="mandala-campo">
+            <label for="zodiac_type" class="mandala-label">Zodíaco</label>
+            <select id="zodiac_type" name="zodiac_type" class="mandala-select">
               <option value="tropical" selected>Tropical</option>
               <option value="sidereal">Sideral</option>
             </select>
           </div>
         </div>
 
-        <!-- Aparência -->
-        <div class="ma-grid">
-          <div class="ma-row">
-            <label for="theme_type">Tema</label>
-            <select id="theme_type" name="theme_type">
+        <div class="mandala-linha-2">
+          <div class="mandala-campo">
+            <label for="theme_type" class="mandala-label">Tema</label>
+            <select id="theme_type" name="theme_type" class="mandala-select">
               <option value="light" selected>Claro (parecido com o exemplo)</option>
               <option value="dark">Escuro</option>
             </select>
           </div>
 
-          <div class="ma-row">
-            <label for="size">Tamanho</label>
-            <select id="size" name="size">
+          <div class="mandala-campo">
+            <label for="size" class="mandala-label">Tamanho</label>
+            <select id="size" name="size" class="mandala-select">
               <option value="760">760</option>
               <option value="900" selected>900</option>
               <option value="1100">1100</option>
@@ -108,17 +95,13 @@
           </div>
         </div>
 
-        <!-- Ação -->
-        <button class="ma-btn" type="submit">Gerar Mandala</button>
-
-        <!-- Status/feedback (preenchido via JS) -->
-        <p id="status" class="ma-status" role="status" aria-live="polite"></p>
+        <button class="mandala-botao" type="submit">Gerar Mandala</button>
+        <p id="status" class="mandala-status" role="status" aria-live="polite"></p>
       </form>
     </section>
 
-    <!-- Resultado -->
-    <section class="ma-result" aria-label="Resultado da mandala">
-      <div id="output" class="ma-output" aria-label="Mandala gerada"></div>
+    <section class="mandala-resultado" aria-label="Resultado da mandala">
+      <div id="output" class="mandala-caixa-svg" aria-label="Mandala gerada"></div>
     </section>
   </main>
 
