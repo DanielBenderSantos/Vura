@@ -1,36 +1,23 @@
 // app.js
-// Responsável por:
-// 1) Autocomplete de cidades (chama /api/geo)
-// 2) Guardar lat/lng/timezone da cidade escolhida
-// 3) Enviar dados para /api/mandala e renderizar o SVG retornado
+// GitHub Pages (front) chamando Vercel (backend)
 
+const API_BASE = "https://vura-ten.vercel.app"; // ✅ sem "/" no final
 
-const API_BASE = "https://vura-ten.vercel.app/";
-
-// Atalho para pegar elementos pelo ID
 const pegarEl = (id) => document.getElementById(id);
 
-// Elementos principais da página
 const formulario = pegarEl("formMandala");
 const elStatus = pegarEl("status");
 const elResultado = pegarEl("output");
 
-// Elementos do campo de cidade + lista de sugestões
 const inputCidade = pegarEl("city");
 const listaCidades = pegarEl("cityList");
 
-// Aqui guardamos a cidade escolhida (objeto completo: name/country/lat/lng/timezone)
 let cidadeSelecionada = null;
 
-/** Atualiza o texto de status/feedback para o usuário */
 function definirStatus(mensagem) {
   elStatus.textContent = mensagem || "";
 }
 
-/**
- * Evita injeção de HTML ao montar a lista de sugestões (segurança básica).
- * Ex: se algum texto vier com "<script>", isso vira texto e não executa.
- */
 function escaparHtml(texto) {
   return String(texto).replace(/[&<>"']/g, (c) => ({
     "&": "&amp;",
@@ -41,10 +28,6 @@ function escaparHtml(texto) {
   }[c]));
 }
 
-/**
- * Renderiza a lista de sugestões de cidades abaixo do input.
- * Cada item vira um botão clicável.
- */
 function mostrarSugestoes(cidades) {
   if (!cidades || cidades.length === 0) {
     listaCidades.hidden = true;
@@ -64,36 +47,26 @@ function mostrarSugestoes(cidades) {
     </button>`;
   }).join("");
 
-  // Ao clicar em uma cidade, salvamos e preenchermos os hidden inputs
   listaCidades.querySelectorAll("button").forEach((botao) => {
     botao.addEventListener("click", () => {
       const idx = Number(botao.dataset.idx);
       cidadeSelecionada = cidades[idx];
 
-      // Preenche o input visível com "Cidade (País)"
       inputCidade.value = `${cidadeSelecionada.name} (${cidadeSelecionada.country})`;
-
-      // Preenche os hidden inputs (usados ao enviar o payload)
       pegarEl("lat").value = cidadeSelecionada.lat;
       pegarEl("lng").value = cidadeSelecionada.lng;
       pegarEl("tz").value = cidadeSelecionada.timezone;
 
-      // Fecha a lista
       mostrarSugestoes([]);
       definirStatus("");
     });
   });
 }
 
-/* ===========================
-   AUTOCOMPLETE COM DEBOUNCE
-   =========================== */
-
-// debounce: evita chamar API a cada tecla imediatamente (melhora performance)
+// Debounce
 let timerDebounce = null;
 
 inputCidade.addEventListener("input", () => {
-  // Sempre que o usuário digita de novo, invalidamos a seleção anterior
   cidadeSelecionada = null;
   pegarEl("lat").value = "";
   pegarEl("lng").value = "";
@@ -103,7 +76,6 @@ inputCidade.addEventListener("input", () => {
 
   const termo = inputCidade.value.trim();
 
-  // Se tiver menos de 2 letras, nem buscamos
   if (termo.length < 2) {
     mostrarSugestoes([]);
     return;
@@ -118,7 +90,6 @@ inputCidade.addEventListener("input", () => {
         throw new Error(dados?.error || "Erro ao buscar cidades.");
       }
 
-      // O backend devolve { results: [...] }
       const cidades = dados.results || [];
       mostrarSugestoes(cidades);
 
@@ -129,26 +100,21 @@ inputCidade.addEventListener("input", () => {
   }, 250);
 });
 
-// Fecha as sugestões ao clicar fora do componente de autocomplete
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".mandala-autocomplete")) mostrarSugestoes([]);
+  if (!e.target.closest(".mandala-autocomplete")) {
+    mostrarSugestoes([]);
+  }
 });
-
-/* ===========================
-   ENVIO DO FORMULÁRIO / MANDALA
-   =========================== */
 
 formulario.addEventListener("submit", async (e) => {
   e.preventDefault();
   definirStatus("");
 
-  // 1) Obrigatório ter escolhido uma cidade da lista (pra garantir lat/lng/tz)
   if (!cidadeSelecionada) {
     definirStatus("Selecione uma cidade na lista (isso garante lat/lng e timezone).");
     return;
   }
 
-  // 2) Data e hora
   const valorData = pegarEl("date").value;
   const valorHora = pegarEl("time").value;
 
@@ -160,7 +126,6 @@ formulario.addEventListener("submit", async (e) => {
   const [ano, mes, dia] = valorData.split("-").map(Number);
   const [hora, minuto] = valorHora.split(":").map(Number);
 
-  // 3) Monta o payload para o backend /api/mandala
   const payload = {
     name: pegarEl("name").value.trim(),
     year: ano,
@@ -184,7 +149,7 @@ formulario.addEventListener("submit", async (e) => {
     definirStatus("Gerando mandala...");
     elResultado.innerHTML = "";
 
-    const resp = await fetch(`${API_BASE}/api/mandala`,  {
+    const resp = await fetch(`${API_BASE}/api/mandala`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -193,8 +158,6 @@ formulario.addEventListener("submit", async (e) => {
     const dados = await resp.json();
     if (!resp.ok) throw new Error(dados?.error || "Falha ao gerar mandala.");
 
-    // Nosso backend padroniza como { svg: "<svg...>" }
-    // Mesmo assim deixei fallback caso você mude algo no futuro.
     const svg =
       dados.svg ||
       dados.chart_svg ||
@@ -207,7 +170,6 @@ formulario.addEventListener("submit", async (e) => {
       throw new Error("Não achei o SVG na resposta. Veja o console (F12) para ajustar o campo.");
     }
 
-    // 4) Renderiza o SVG direto no HTML
     elResultado.innerHTML = svg;
     definirStatus("Pronto ✅");
 
