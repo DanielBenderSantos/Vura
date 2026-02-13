@@ -4,6 +4,9 @@
 // 2) Guardar lat/lng/timezone da cidade escolhida
 // 3) Enviar dados para /api/mandala e renderizar o SVG retornado
 
+
+const API_BASE = "https://vura-ten.vercel.app/";
+
 // Atalho para pegar elementos pelo ID
 const pegarEl = (id) => document.getElementById(id);
 
@@ -108,7 +111,7 @@ inputCidade.addEventListener("input", () => {
 
   timerDebounce = setTimeout(async () => {
     try {
-      const resp = await fetch(`/api/geo?q=${encodeURIComponent(termo)}&limit=8`);
+      const resp = await fetch(`${API_BASE}/api/geo?q=${encodeURIComponent(termo)}&limit=8`);
       const dados = await resp.json();
 
       if (!resp.ok) {
@@ -181,7 +184,7 @@ formulario.addEventListener("submit", async (e) => {
     definirStatus("Gerando mandala...");
     elResultado.innerHTML = "";
 
-    const resp = await fetch("/api/mandala", {
+    const resp = await fetch(`${API_BASE}/api/mandala`,  {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
